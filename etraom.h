@@ -77,6 +77,19 @@ typedef struct
 	map_t *map;
 } entity_t;
 
+/*	TODO: implement links;
+	links are the glue between the layers of the dungeon,
+	being able to send entities from any to any other map,
+	even circularly */
+typedef struct
+{
+	map_t *dest;
+	int dest_x, dest_y;
+
+	int x, y;
+	map_t *map;
+} link_t;
+
 /* main data arrays */
 entity_t entity[MAX_ENTITIES];
 int entity_count;
@@ -106,6 +119,7 @@ int count_placeable_doors( map_t *m, int x1, int y1, int x2, int y2 );
 void place_doors( map_t *m, int x1, int y1, int x2, int y2 );
 void dig_room( map_t *m, int x1, int y1, int x2, int y2 );
 int dig_rooms( map_t *m, int nrooms, int minw, int minh, int maxw, int maxh );
+void post_process( map_t *m );
 
 /* item.c */
 item_t *alloc_item( void );
@@ -121,10 +135,12 @@ void init_screen( void );
 void terminate_screen( void );
 void set_color( int f, int attr );
 void draw_screen( void );
+void title_screen( void );
 
 /* game.c */
 void init_game( void );
 void terminate_game( void );
+int player_act( entity_t *e, int c );
 void game_loop( void );
 
 /* sight.c */

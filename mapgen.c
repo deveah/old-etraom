@@ -308,3 +308,12 @@ int dig_rooms( map_t *m, int nrooms, int minw, int minh, int maxw, int maxh )
 			place_doors( m, cx*2-1, cy*2-1, cx*2+cw*2+1, cy*2+ch*2+1 );
 	}
 }
+
+void post_process( map_t *m )
+{
+	int i, j;
+	for( i = 0; i < m->width; i++ )
+		for( j = 0; j < m->height; j++ )
+			if( m->tile[i][j].type == tile_room_floor )
+				m->tile[i][j].type = tile_floor;
+}

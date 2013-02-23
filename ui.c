@@ -1,7 +1,18 @@
 
+#include <string.h>
 #include <curses.h>
 
 #include "etraom.h"
+
+char* etraom_logo[] = {
+	" @@@@@@@@ @@@@@@@ @@@@@@@   @@@@@@   @@@@@@  @@@@@@@@@@ ",
+	"@@!        @@!   @@!  @@@ @@!  @@@ @@!  @@@ @@! @@! @@! ",
+	"@!!!:!     @!!   @!@!!@!  @!@!@!@! @!@  !@! @!! !!@ @!@ ",
+	"!!:        !!:   !!: :!!  !!:  !!! !!:  !!! !!:     !!: ",
+	": :: :::    :     :   : :  :   : :  : :. :   :      :   ",
+	"",
+	"             http://github.com/deveah/etraom "
+};
 
 void init_screen( void )
 {
@@ -81,7 +92,8 @@ void draw_screen( void )
 				attron( COLOR_PAIR( c ) );
 				mvaddch( j, i, t );
 			}
-			else if( m->tile[i][j].flags & TILEFLAG_SEEN )
+			else if( ( m->tile[i][j].flags & TILEFLAG_SEEN ) &&
+				m->tile[i][j].type != tile_floor )
 			{
 				attron( COLOR_PAIR( COLOR_WHITE ) );
 				mvaddch( j, i, t );
@@ -100,4 +112,40 @@ void draw_screen( void )
 	mvprintw( SCREEN_Y-2, 0, "$name ($hp/$maxhp)" );
 	mvprintw( SCREEN_Y-1, 0, "w: $weapon" );
 	mvprintw( SCREEN_Y-1, SCREEN_X/2, "a: $armor" );
+}
+
+void title_screen( void )
+{
+	int i, j;
+	int cx, cy;
+
+	cx = ( SCREEN_X - strlen( etraom_logo[0] ) ) / 2;
+	cy = ( SCREEN_Y - 7 ) / 2;
+
+	for( j = 0; j < 7; j++ )
+		for( i = 0; i < strlen( etraom_logo[j] ); i++ )
+		{
+			attroff( A_BOLD );
+
+			switch( etraom_logo[j][i] )
+			{
+			case '@':
+				attron( COLOR_PAIR( COLOR_RED ) | A_BOLD );
+				break;
+			case '!':
+				attron( COLOR_PAIR( COLOR_RED ) );
+				break;
+			case ':':
+			case '.':
+				attron( COLOR_PAIR( COLOR_YELLOW ) );
+				break;
+			default:
+				attroff( A_BOLD );
+				attron( COLOR_PAIR( COLOR_WHITE ) );
+			}
+
+			mvaddch( cy+j, cx+i, etraom_logo[j][i] );
+		}
+	
+	getch();
 }
