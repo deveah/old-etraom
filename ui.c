@@ -123,7 +123,7 @@ void title_screen( void )
 	cy = ( SCREEN_Y - 7 ) / 2;
 
 	for( j = 0; j < 7; j++ )
-		for( i = 0; i < strlen( etraom_logo[j] ); i++ )
+		for( i = 0; i < (int)strlen( etraom_logo[j] ); i++ )
 		{
 			attroff( A_BOLD );
 
@@ -148,4 +148,36 @@ void title_screen( void )
 		}
 	
 	getch();
+}
+
+void input_direction( int *x, int *y )
+{
+	int c = 0;
+
+	*x = 0;
+	*y = 0;
+
+	while( 1 )
+	{
+		c = getch();
+
+		switch( c )
+		{
+		case 'h':
+			*x = -1;
+			return;
+		case 'j':
+			*y =  1;
+			return;
+		case 'k':
+			*y = -1;
+			return;
+		case 'l':
+			*x =  1;
+			return;
+		default:
+			/* TODO: "invalid input" message */
+			;
+		}
+	}
 }

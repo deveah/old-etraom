@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <curses.h>
+
 #include "etraom.h"
 
 void init_game( void )
@@ -52,10 +54,47 @@ void terminate_game( void )
 	free_map( dungeon[0] );
 }
 
+int open_door( entity_t *e, int x, int y )
+{
+	if( is_legal( e->map, x, y ) &&
+		e->map->tile[x][y].type == tile_door_closed )
+	{
+		/* TODO: "e opens the door" message */
+		e->map->tile[x][y].type = tile_door_open;
+		return 1;
+	}
+	else
+	{
+		/* TODO: "that's not a door" message */
+		return 0;
+	}
+
+	return 0;
+}
+
+int close_door( entity_t *e, int x, int y )
+{
+	if( is_legal( e->map, x, y ) &&
+		e->map->tile[x][y].type == tile_door_open )
+	{
+		/* TODO: "e closes the door" message */
+		e->map->tile[x][y].type = tile_door_closed;
+		return 1;
+	}
+	else
+	{
+		/* TODO: "that's not an open door" message */
+		return 0;
+	}
+
+	return 0;
+}
+
 int player_act( entity_t *e, int c )
 {
 	int i, j;
 	int dx = 0, dy = 0;
+	int tx = 0, ty = 0;
 
 	switch( c )
 	{
@@ -74,6 +113,16 @@ int player_act( entity_t *e, int c )
 	case 'l':
 		dx =  1;
 		break;
+	case 'o':
+		/* TODO: "what direction?" message */
+		input_direction( &tx, &ty );
+		open_door( e, e->x+tx, e->y+ty );
+		break;
+	case 'c':
+		/* TODO: "what direction?" message */
+		input_direction( &tx, &ty );
+		close_door( e, e->x+tx, e->y+ty );
+		break;
 	case 'z':
 		for( i = 0; i < e->map->width; i++ )
 			for( j = 0; j < e->map->height; j++ )
@@ -91,8 +140,7 @@ int player_act( entity_t *e, int c )
 				entity_move_rel( e, dx, dy );
 			else if( e->map->tile[e->x+dx][e->y+dy].type == tile_door_closed )
 			{
-				/* TODO: open door message */
-				e->map->tile[e->x+dx][e->y+dy].type = tile_door_open; 
+				open_door( e, e->x+dx, e->y+dy );
 			}
 		}
 	}

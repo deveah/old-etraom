@@ -1,4 +1,6 @@
 
+#include <stdlib.h>
+
 #include "etraom.h"
 
 int count_neighbours( map_t *m, int x, int y,int w )
@@ -173,9 +175,9 @@ int generate_dfa_maze(	map_t *m, int root_x, int root_y, int max_cells,
 				dy = ( rand() % 3 ) - 1;
 			}
 
-			// TODO: map height inaccurate due to is_legal calculation errors;
+			/* TODO: map height inaccurate due to is_legal calculation errors; */
 			if( is_legal( small_map, cx+dx*2, cy+dy*2 ) )
-			//if( is_legal( m, cx*2+dx*3, cy*2+dy*3 ) )
+			/*if( is_legal( m, cx*2+dx*3, cy*2+dy*3 ) ) */
 			{
 				cx += dx;
 				cy += dy;
@@ -307,6 +309,8 @@ int dig_rooms( map_t *m, int nrooms, int minw, int minh, int maxw, int maxh )
 		if( ( r < MAP_MAX_DOORS ) && ( rand() % DOOR_CHANCE == 0 ) )
 			place_doors( m, cx*2-1, cy*2-1, cx*2+cw*2+1, cy*2+ch*2+1 );
 	}
+
+	return 0;
 }
 
 void post_process( map_t *m )

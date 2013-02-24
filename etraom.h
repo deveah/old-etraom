@@ -136,16 +136,19 @@ void terminate_screen( void );
 void set_color( int f, int attr );
 void draw_screen( void );
 void title_screen( void );
+void input_direction( int *x, int *y );
 
 /* game.c */
 void init_game( void );
 void terminate_game( void );
+int open_door( entity_t *e, int x, int y );
+int close_door( entity_t *e, int x, int y );
 int player_act( entity_t *e, int c );
 void game_loop( void );
 
 /* sight.c */
 int do_ray( map_t *m, int x1, int y1, int x2, int y2 );
-int do_fov( void );
+void do_fov( void );
 
 /* misc.c */
 void die( char *s );

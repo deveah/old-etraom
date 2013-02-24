@@ -1,4 +1,6 @@
 
+#include <stdlib.h>
+
 #include "etraom.h"
 
 int do_ray( map_t *m, int x1, int y1, int x2, int y2 )
@@ -38,7 +40,7 @@ int do_ray( map_t *m, int x1, int y1, int x2, int y2 )
 	return 1;
 }
 
-int do_fov( void )
+void do_fov( void )
 {
 	int i, j;
 
