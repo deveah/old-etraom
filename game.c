@@ -10,11 +10,20 @@
 void init_game( void )
 {
 	int i, r;
+	int ax, ay;
 
+	init_screen();
+	title_screen();
+	
 	entity_count = 1;
 	item_count = 0;
+	link_count = 0;
 
 	srand( time( 0 ) );
+
+	clear();
+	attron( COLOR_PAIR( COLOR_WHITE ) );
+	mvprintw( 12, 5, "Generating dungeon" );
 
 	for( i = 0; i < MAX_MAPS; i++ )
 	{
@@ -23,6 +32,47 @@ void init_game( void )
 		if( r == 0 ) r = 200;
 		dig_rooms( dungeon[i], r/20, 1, 1, 4, 3 );
 		post_process( dungeon[i] );
+		
+		mvaddch( 12, 23+i, '.' );
+	}
+
+	for( i = 0; i < MAX_MAPS; i++ )
+	{
+		/* link back */
+		if( i > 0 )
+		{
+			link[link_count].map = dungeon[i];
+			link[link_count].x = link[link_count-1].x;
+			link[link_count].y = link[link_count-1].y;
+			link[link_count].dest_map = dungeon[i-1];
+			link[link_count].dest_x = link[link_count-1].x;
+			link[link_count].dest_y = link[link_count-1].y;
+			link[link_count].face = '<';
+			link_count++;
+		}
+
+		/* link forward */
+		if( i < MAX_MAPS-1 )
+		{
+			while( 1 )
+			{
+				ax = rand() % MAP_X;
+				ay = rand() % MAP_Y;
+				if(	( dungeon[i  ]->tile[ax][ay].type == tile_floor ) &&
+					( dungeon[i+1]->tile[ax][ay].type == tile_floor ) )
+				{
+					link[link_count].map = dungeon[i];
+					link[link_count].x = ax;
+					link[link_count].y = ay;
+					link[link_count].dest_map = dungeon[i+1];
+					link[link_count].dest_x = ax;
+					link[link_count].dest_y = ay;
+					link[link_count].face = '>';
+					link_count++;
+					break;
+				}
+			}
+		}
 	}
 
 	entity[0].name = "Player";
@@ -44,8 +94,6 @@ void init_game( void )
 	entity[0].x = ix;
 	entity[0].y = iy;
 
-	init_screen();
-	title_screen();
 	draw_screen();
 }
 
@@ -90,6 +138,25 @@ int close_door( entity_t *e, int x, int y )
 	return 0;
 }
 
+int follow_stairs( entity_t *e )
+{
+	int i;
+	for( i = 0; i < link_count; i++ )
+	{
+		if( ( link[i].map == e->map ) &&
+			( link[i].x == e->x ) &&
+			( link[i].y == e->y ) )
+		{
+			entity_follow_link( e, &link[i] );
+			/* TODO: "you descend/ascend" message */
+			return 1;
+		}
+	}
+
+	/* TODO: "those are not stairs" message */
+	return 0;
+}
+
 int player_act( entity_t *e, int c )
 {
 	int i, j;
@@ -112,6 +179,9 @@ int player_act( entity_t *e, int c )
 		break;
 	case 'l':
 		dx =  1;
+		break;
+	case '>':
+		follow_stairs( e );
 		break;
 	case 'o':
 		/* TODO: "what direction?" message */

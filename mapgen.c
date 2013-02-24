@@ -99,7 +99,7 @@ int generate_dfa(	map_t *m, int root_x, int root_y, int max_cells,
 	return 0;
 }
 
-void link( map_t *m, int x1, int y1, int x2, int y2 )
+void dig_link( map_t *m, int x1, int y1, int x2, int y2 )
 {
 	int cx = x1, cy = y1;
 	int dx, dy;
@@ -190,13 +190,13 @@ int generate_dfa_maze(	map_t *m, int root_x, int root_y, int max_cells,
 					m->tile[cx*2][cy*2].type = tile_floor;
 					
 					if( is_legal( small_map, cx-1, cy ) && small_map->tile[cx-1][cy].type == tile_floor )
-						link( m, cx*2, cy*2, (cx-1)*2, cy*2 );
+						dig_link( m, cx*2, cy*2, (cx-1)*2, cy*2 );
 					if( is_legal( small_map, cx+1, cy ) && small_map->tile[cx+1][cy].type == tile_floor )
-						link( m, cx*2, cy*2, (cx+1)*2, cy*2 );
+						dig_link( m, cx*2, cy*2, (cx+1)*2, cy*2 );
 					if( is_legal( small_map, cx, cy-1 ) && small_map->tile[cx][cy-1].type == tile_floor )
-						link( m, cx*2, cy*2, cx*2, (cy-1)*2 );
+						dig_link( m, cx*2, cy*2, cx*2, (cy-1)*2 );
 					if( is_legal( small_map, cx, cy+1 ) && small_map->tile[cx][cy+1].type == tile_floor )
-						link( m, cx*2, cy*2, cx*2, (cy+1)*2 );
+						dig_link( m, cx*2, cy*2, cx*2, (cy+1)*2 );
 					
 					cells_dug++;
 					builder_spawned = 0;

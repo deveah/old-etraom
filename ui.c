@@ -100,6 +100,23 @@ void draw_screen( void )
 			}
 		}
 	
+	for( i = 0; i < link_count; i++ )
+	{
+		if( link[i].map == m )
+		{
+			if( m->tile[link[i].x][link[i].y].flags & TILEFLAG_SEEN )
+			{
+				attron( COLOR_PAIR( COLOR_WHITE ) );
+				mvaddch( link[i].y, link[i].x, link[i].face );
+			}
+			if( m->tile[link[i].x][link[i].y].flags & TILEFLAG_LIT )
+			{
+				attron( COLOR_PAIR( COLOR_YELLOW ) );
+				mvaddch( link[i].y, link[i].x, link[i].face );
+			}
+		}
+	}
+
 	for( i = 0; i < entity_count; i++ )
 	{
 		attron( COLOR_PAIR( COLOR_WHITE ) );
@@ -130,14 +147,14 @@ void title_screen( void )
 			switch( etraom_logo[j][i] )
 			{
 			case '@':
-				attron( COLOR_PAIR( COLOR_RED ) | A_BOLD );
+				attron( COLOR_PAIR( COLOR_GREEN ) );
 				break;
 			case '!':
-				attron( COLOR_PAIR( COLOR_RED ) );
+				attron( COLOR_PAIR( COLOR_YELLOW ) );
 				break;
 			case ':':
 			case '.':
-				attron( COLOR_PAIR( COLOR_YELLOW ) );
+				attron( COLOR_PAIR( COLOR_RED ) );
 				break;
 			default:
 				attroff( A_BOLD );

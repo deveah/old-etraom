@@ -14,6 +14,7 @@
 #define MAX_ENTITIES 256
 #define MAX_ITEMS 1024
 #define MAX_MAPS 16
+#define MAX_LINKS 64
 
 #define MAP_X 80
 #define MAP_Y 24
@@ -83,7 +84,9 @@ typedef struct
 	even circularly */
 typedef struct
 {
-	map_t *dest;
+	char face;
+
+	map_t *dest_map;
 	int dest_x, dest_y;
 
 	int x, y;
@@ -96,6 +99,9 @@ int entity_count;
 
 item_t item[MAX_ITEMS];
 int item_count;
+
+link_t link[MAX_LINKS];
+int link_count;
 
 map_t *dungeon[MAX_MAPS];
 
@@ -117,6 +123,7 @@ int generate_dfa_maze(	map_t *m, int root_x, int root_y, int max_cells,
 int is_free( map_t *m, int x1, int y1, int x2, int y2, int w );
 int count_placeable_doors( map_t *m, int x1, int y1, int x2, int y2 );
 void place_doors( map_t *m, int x1, int y1, int x2, int y2 );
+void dig_link( map_t *m, int x1, int y1, int x2, int y2 );
 void dig_room( map_t *m, int x1, int y1, int x2, int y2 );
 int dig_rooms( map_t *m, int nrooms, int minw, int minh, int maxw, int maxh );
 void post_process( map_t *m );
@@ -129,6 +136,7 @@ void free_item( item_t *i );
 entity_t *alloc_entity( void );
 void free_entity( entity_t *e );
 void entity_move_rel( entity_t *e, int rx, int ry );
+void entity_follow_link( entity_t *e, link_t *l );
 
 /* ui.c */
 void init_screen( void );

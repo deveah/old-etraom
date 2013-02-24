@@ -36,3 +36,12 @@ void entity_move_rel( entity_t *e, int rx, int ry )
 		e->y += ry;
 	}
 }
+
+void entity_follow_link( entity_t *e, link_t *l )
+{
+	/*	followed link is assumed to be legal; i.e. it shouldn't lead into a
+		wall, or a null map */
+	e->x = l->dest_x;
+	e->y = l->dest_y;
+	e->map = l->dest_map;
+}
