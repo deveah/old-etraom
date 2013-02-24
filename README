@@ -3,6 +3,15 @@
 	a roguelike work in progress
 	--
 
+	Stay tuned for a draft file of some sorts.
+	
+	--
+
+	Building requires curses.
+
 	To compile, just
 	$ ./make.sh
+
+	To run, just
+	$ ./etraom
 
