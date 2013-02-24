@@ -11,6 +11,7 @@ void init_game( void )
 {
 	int i, r;
 	int ax, ay;
+	int tries = 0;
 
 	init_screen();
 	title_screen();
@@ -28,8 +29,14 @@ void init_game( void )
 	for( i = 0; i < MAX_MAPS; i++ )
 	{
 		dungeon[i] = alloc_map( MAP_X, MAP_Y );
-		r = generate_dfa_maze( dungeon[i], MAP_X/2, MAP_Y/2, 200, 3 );
-		if( r == 0 ) r = 200;
+	
+		r = 0;
+		while( r < 100 )
+		{
+			r = generate_dfa_maze( dungeon[i], MAP_X/2, MAP_Y/2, 200, 3 );
+			if( r == 0 ) r = 200;
+		}
+		
 		dig_rooms( dungeon[i], r/20, 1, 1, 4, 3 );
 		post_process( dungeon[i] );
 		
@@ -56,22 +63,37 @@ void init_game( void )
 		{
 			while( 1 )
 			{
+				tries++;
+				if( tries > MAP_MAGIC )
+				{
+					while( 1 )
+					{
+						ax = rand() % MAP_X;
+						ay = rand() % MAP_Y;
+
+						if( dungeon[i]->tile[ax][ay].type == tile_floor )
+							break;
+					}
+				}
+
 				ax = rand() % MAP_X;
 				ay = rand() % MAP_Y;
 				if(	( dungeon[i  ]->tile[ax][ay].type == tile_floor ) &&
-					( dungeon[i+1]->tile[ax][ay].type == tile_floor ) )
+					( dungeon[i+1]->tile[ax][ay].type == tile_floor ) &&
+					link_exists( dungeon[i], ax, ay ) == -1 )
 				{
-					link[link_count].map = dungeon[i];
-					link[link_count].x = ax;
-					link[link_count].y = ay;
-					link[link_count].dest_map = dungeon[i+1];
-					link[link_count].dest_x = ax;
-					link[link_count].dest_y = ay;
-					link[link_count].face = '>';
-					link_count++;
 					break;
 				}
 			}
+
+			link[link_count].map = dungeon[i];
+			link[link_count].x = ax;
+			link[link_count].y = ay;
+			link[link_count].dest_map = dungeon[i+1];
+			link[link_count].dest_x = ax;
+			link[link_count].dest_y = ay;
+			link[link_count].face = '>';
+			link_count++;
 		}
 	}
 
@@ -141,20 +163,19 @@ int close_door( entity_t *e, int x, int y )
 int follow_stairs( entity_t *e )
 {
 	int i;
-	for( i = 0; i < link_count; i++ )
+	i = link_exists( e->map, e->x, e->y );
+	
+	if( i != -1 )
 	{
-		if( ( link[i].map == e->map ) &&
-			( link[i].x == e->x ) &&
-			( link[i].y == e->y ) )
-		{
-			entity_follow_link( e, &link[i] );
-			/* TODO: "you descend/ascend" message */
-			return 1;
-		}
+		/* TODO: "you descend/ascend" message" */
+		entity_follow_link( e, &link[i] );
+		return 1;
 	}
-
-	/* TODO: "those are not stairs" message */
-	return 0;
+	else
+	{
+		/* TODO: "those are not stairs" message */
+		return 0;
+	}
 }
 
 int player_act( entity_t *e, int c )

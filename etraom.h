@@ -4,6 +4,17 @@
  *	main header file for etraom
 */
 
+/*
+ *	TODO
+ *
+ *	other entities
+ *	ai
+ *	attack formulae?
+ *	level diversity
+ *	inventory
+ *	weapon/armor generators
+*/
+
 #ifndef _ETRAOM_H_
 #define _ETRAOM_H_
 
@@ -26,6 +37,10 @@
 
 #define TILEFLAG_LIT		(1<<0)
 #define TILEFLAG_SEEN		(1<<1)
+
+#define ITEMFLAG_PICKABLE	(1<<0)
+#define ITEMFLAG_STACKABLE	(1<<1)
+#define ITEMFLAG_USEABLE	(1<<2)
 
 #define COLOR_WALL			COLOR_CYAN
 #define COLOR_FLOOR			COLOR_WHITE
@@ -78,10 +93,6 @@ typedef struct
 	map_t *map;
 } entity_t;
 
-/*	TODO: implement links;
-	links are the glue between the layers of the dungeon,
-	being able to send entities from any to any other map,
-	even circularly */
 typedef struct
 {
 	char face;
@@ -161,5 +172,7 @@ void do_fov( void );
 /* misc.c */
 void die( char *s );
 int distance( int x1, int y1, int x2, int y2 );
+int link_exists( map_t *m, int x, int y );
+int entity_exists( map_t *m, int x, int y );
 
 #endif
