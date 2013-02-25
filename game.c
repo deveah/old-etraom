@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include <curses.h>
@@ -15,12 +16,18 @@ void init_game( void )
 
 	init_screen();
 	title_screen();
-	
+
+	turn_count = 0;
+
 	entity_count = 1;
 	item_count = 0;
 	link_count = 0;
+	message_count = 0;
 
 	srand( time( 0 ) );
+
+	messagelist_size = MIN_MESSAGELIST_SIZE;
+	message = malloc( MIN_MESSAGELIST_SIZE * sizeof(message_t) );
 
 	clear();
 	attron( COLOR_PAIR( COLOR_WHITE ) );
@@ -121,7 +128,17 @@ void init_game( void )
 
 void terminate_game( void )
 {
-	free_map( dungeon[0] );
+	int i;
+	for( i = 0; i < MAX_MAPS; i++ )
+		free_map( dungeon[i] );
+
+	for( i = 0; i < message_count; i++ )
+	{
+		if( message[i].allocated )
+			free( message[i].s );
+	}
+	
+	free( message );
 }
 
 int open_door( entity_t *e, int x, int y )
@@ -129,13 +146,18 @@ int open_door( entity_t *e, int x, int y )
 	if( is_legal( e->map, x, y ) &&
 		e->map->tile[x][y].type == tile_door_closed )
 	{
-		/* TODO: "e opens the door" message */
+		char *msg = malloc( MAX_MESSAGE_SIZE * sizeof(char) );
+		snprintf( msg, MAX_MESSAGE_SIZE, "%s opens the door.", e->name );
+		push_message( msg, message_normal, 1, turn_count );
+
 		e->map->tile[x][y].type = tile_door_open;
 		return 1;
 	}
 	else
 	{
-		/* TODO: "that's not a door" message */
+		push_message( "That's not a closed door.", message_normal, 0,
+			turn_count );
+
 		return 0;
 	}
 
@@ -147,13 +169,17 @@ int close_door( entity_t *e, int x, int y )
 	if( is_legal( e->map, x, y ) &&
 		e->map->tile[x][y].type == tile_door_open )
 	{
-		/* TODO: "e closes the door" message */
+		char *msg = malloc( MAX_MESSAGE_SIZE * sizeof(char) );
+		snprintf( msg, MAX_MESSAGE_SIZE, "%s closes the door.", e->name );
+		push_message( msg, message_normal, 1, turn_count );
+
 		e->map->tile[x][y].type = tile_door_closed;
 		return 1;
 	}
 	else
 	{
-		/* TODO: "that's not an open door" message */
+		push_message( "That's not an open door.", message_normal, 0,
+			turn_count );
 		return 0;
 	}
 
@@ -167,13 +193,21 @@ int follow_stairs( entity_t *e )
 	
 	if( i != -1 )
 	{
-		/* TODO: "you descend/ascend" message" */
+		char *msg = malloc( MAX_MESSAGE_SIZE * sizeof(char) );
+		if( link[i].face == '>' )
+			snprintf( msg, MAX_MESSAGE_SIZE, "%s descends.", e->name );
+		else if( link[i].face == '<' )
+			snprintf( msg, MAX_MESSAGE_SIZE, "%s ascends.", e->name );
+		else
+			strcat( msg, "Bug." );
+		push_message( msg, message_normal, 1, turn_count );
+
 		entity_follow_link( e, &link[i] );
 		return 1;
 	}
 	else
 	{
-		/* TODO: "those are not stairs" message */
+		push_message( "Those aren't stairs.", message_normal, 0, turn_count );
 		return 0;
 	}
 }
@@ -205,12 +239,12 @@ int player_act( entity_t *e, int c )
 		follow_stairs( e );
 		break;
 	case 'o':
-		/* TODO: "what direction?" message */
+		push_message( "What direction?", message_normal, 0, turn_count );
 		input_direction( &tx, &ty );
 		open_door( e, e->x+tx, e->y+ty );
 		break;
 	case 'c':
-		/* TODO: "what direction?" message */
+		push_message( "What direction?", message_normal, 0, turn_count );
 		input_direction( &tx, &ty );
 		close_door( e, e->x+tx, e->y+ty );
 		break;
@@ -250,6 +284,8 @@ void game_loop( void )
 			running = 0;
 
 		draw_screen();
+	
+		turn_count++;
 	}
 
 	terminate_screen();

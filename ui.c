@@ -125,10 +125,17 @@ void draw_screen( void )
 	}
 
 	attron( COLOR_PAIR( COLOR_WHITE ) );
-	mvprintw( 0, 0, "Here be dragons." );
 	mvprintw( SCREEN_Y-2, 0, "$name ($hp/$maxhp)" );
 	mvprintw( SCREEN_Y-1, 0, "w: $weapon" );
 	mvprintw( SCREEN_Y-1, SCREEN_X/2, "a: $armor" );
+
+	for( i = 0; i < message_count; i++ )
+	{
+		if( message[i].time == turn_count )
+		{
+			mvprintw( 0, 0, message[i].s );
+		}
+	}
 }
 
 void title_screen( void )
@@ -193,7 +200,7 @@ void input_direction( int *x, int *y )
 			*x =  1;
 			return;
 		default:
-			/* TODO: "invalid input" message */
+			push_message( "Invalid input.", message_normal, 0, turn_count );
 			;
 		}
 	}

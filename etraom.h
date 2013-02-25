@@ -27,6 +27,9 @@
 #define MAX_MAPS 16
 #define MAX_LINKS 64
 
+#define MAX_MESSAGE_SIZE 64
+#define MIN_MESSAGELIST_SIZE 64
+
 #define MAP_X 80
 #define MAP_Y 24
 
@@ -52,6 +55,11 @@ enum tile_type
 {
 	tile_void, tile_floor, tile_room_floor, tile_wall, tile_door_closed,
 	tile_door_open
+};
+
+enum message_type
+{
+	message_normal, message_warning, message_urgent, message_log
 };
 
 enum item_location
@@ -104,6 +112,17 @@ typedef struct
 	map_t *map;
 } link_t;
 
+typedef struct
+{
+	char *s;
+	int type;
+	int allocated;
+	int time;
+} message_t;
+
+/* global game variables */
+int turn_count;
+
 /* main data arrays */
 entity_t entity[MAX_ENTITIES];
 int entity_count;
@@ -115,6 +134,10 @@ link_t link[MAX_LINKS];
 int link_count;
 
 map_t *dungeon[MAX_MAPS];
+
+message_t *message;
+int message_count;
+int messagelist_size;
 
 /* map.c */
 map_t *alloc_map( int width, int height );
@@ -174,5 +197,9 @@ void die( char *s );
 int distance( int x1, int y1, int x2, int y2 );
 int link_exists( map_t *m, int x, int y );
 int entity_exists( map_t *m, int x, int y );
+
+/* message.c */
+void clear_messages( int begin, int end );
+void push_message( char *s, int type, int allocated, int time );
 
 #endif
