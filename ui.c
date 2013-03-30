@@ -116,6 +116,17 @@ void draw_screen( void )
 			}
 		}
 	}
+	
+	for( i = 0; i < item_count; i++ )
+	{
+		if(	( item[i].map == m ) &&
+			( item[i].location == loc_floor ) &&
+			( m->tile[item[i].x][item[i].y].flags & TILEFLAG_LIT ) )
+		{
+			attron( COLOR_PAIR( COLOR_RED ) );
+			mvaddch( item[i].y, item[i].x, item[i].face );
+		}
+	}
 
 	for( i = 0; i < entity_count; i++ )
 	{
@@ -123,6 +134,7 @@ void draw_screen( void )
 		if( entity[i].map == m )
 			mvaddch( entity[i].y, entity[i].x, entity[i].face );
 	}
+
 
 	attron( COLOR_PAIR( COLOR_WHITE ) );
 	mvprintw( SCREEN_Y-2, 0, "$name ($hp/$maxhp)" );
@@ -136,6 +148,27 @@ void draw_screen( void )
 			mvprintw( 0, 0, message[i].s );
 		}
 	}
+}
+
+void inventory_screen( void )
+{
+	int i;
+
+	mvprintw( 1, 0, " Inventory: (%i items)", entity[0].inventory_item_count );
+
+	for( i = 0; i < entity[0].inventory_item_count; i++ )
+	{
+		if( entity[0].inventory[i]->flags & ITEMFLAG_STACKABLE )
+			mvprintw( 2+i, 0, " [%c] %s (%i)",
+				entity[0].inventory[i]->face,
+				entity[0].inventory[i]->name,
+				entity[0].inventory[i]->quantity );
+		else
+			mvprintw( 2+i, 0, " [%c] %s",
+				entity[0].inventory[i]->face,
+				entity[0].inventory[i]->name );
+	}
+	getch();
 }
 
 void title_screen( void )

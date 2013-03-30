@@ -321,3 +321,33 @@ void post_process( map_t *m )
 			if( m->tile[i][j].type == tile_room_floor )
 				m->tile[i][j].type = tile_floor;
 }
+
+void place_items( map_t *m, int nitems )
+{
+	int rx, ry;
+	int i;
+
+	for( i = 0; i < nitems; i++ )
+	{
+		while( 1 )
+		{
+			rx = rand() % m->width;
+			ry = rand() % m->height;
+
+			if(	( m->tile[rx][ry].type == tile_floor ) &&
+			 	( find_item_by_location( m, rx, ry ) == -1 ) )
+				break;
+		}
+
+		item[item_count].name = "Berry";
+		item[item_count].face = '%';
+		item[item_count].location = loc_floor;
+		item[item_count].x = rx;
+		item[item_count].y = ry;
+		item[item_count].map = m;
+		item[item_count].flags = ITEMFLAG_STACKABLE;
+		item[item_count].quantity = 1;
+		item[item_count].max_stack_size = 3;
+		item_count++;
+	}
+}

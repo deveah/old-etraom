@@ -11,7 +11,6 @@
  *	ai
  *	attack formulae?
  *	level diversity
- *	inventory
  *	weapon/armor generators
 */
 
@@ -26,6 +25,7 @@
 #define MAX_ITEMS 1024
 #define MAX_MAPS 16
 #define MAX_LINKS 64
+#define MAX_INVENTORY_ITEMS 26
 
 #define MAX_MESSAGE_SIZE 64
 #define MIN_MESSAGELIST_SIZE 64
@@ -83,8 +83,10 @@ typedef struct
 
 typedef struct
 {
-	char *name;
+	char *name, face;
 	int type;
+	int flags;
+	int quantity, quality;
 
 	int location;
 	int x, y;
@@ -96,6 +98,8 @@ typedef struct
 	char *name, face;
 	int level, hp, max_hp;
 	int body, mind, luck;
+	item_t* inventory[MAX_INVENTORY_ITEMS];
+	int inventory_item_count;
 
 	int x, y;
 	map_t *map;
@@ -161,10 +165,12 @@ void dig_link( map_t *m, int x1, int y1, int x2, int y2 );
 void dig_room( map_t *m, int x1, int y1, int x2, int y2 );
 int dig_rooms( map_t *m, int nrooms, int minw, int minh, int maxw, int maxh );
 void post_process( map_t *m );
+void place_items( map_t *m, int nitems );
 
 /* item.c */
 item_t *alloc_item( void );
 void free_item( item_t *i );
+int find_item_by_location( map_t *m, int x, int y );
 
 /* entity.c */
 entity_t *alloc_entity( void );
@@ -177,6 +183,7 @@ void init_screen( void );
 void terminate_screen( void );
 void set_color( int f, int attr );
 void draw_screen( void );
+void inventory_screen( void );
 void title_screen( void );
 void input_direction( int *x, int *y );
 
@@ -185,6 +192,8 @@ void init_game( void );
 void terminate_game( void );
 int open_door( entity_t *e, int x, int y );
 int close_door( entity_t *e, int x, int y );
+int pick_up_item( entity_t *e );
+int follow_stairs( entity_t *e );
 int player_act( entity_t *e, int c );
 void game_loop( void );
 

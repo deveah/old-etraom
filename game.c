@@ -46,7 +46,8 @@ void init_game( void )
 		
 		dig_rooms( dungeon[i], r/20, 1, 1, 4, 3 );
 		post_process( dungeon[i] );
-		
+		place_items( dungeon[i], 10 );
+
 		mvaddch( 12, 23+i, '.' );
 	}
 
@@ -113,6 +114,7 @@ void init_game( void )
 	entity[0].mind = 1;
 	entity[0].luck = 1;
 	entity[0].map = dungeon[0];
+	entity[0].inventory_item_count = 0;
 
 	int ix = 0, iy = 0;
 	while( entity[0].map->tile[ix][iy].type != tile_floor )
@@ -186,6 +188,52 @@ int close_door( entity_t *e, int x, int y )
 	return 0;
 }
 
+int pick_up_item( entity_t *e )
+{
+	int id;
+	int i;
+	int found = 0;
+
+	if( is_legal( e->map, e->x, e->y ) )
+	{
+		id = find_item_by_location( e->map, e->x, e->y );
+		if( id == -1 )
+		{
+			push_message( "There's no item to pick up.", message_normal, 0,
+				turn_count );
+			return 0;
+		}
+		else
+		{
+			for( i = 0; i < e->inventory_item_count; i++ )
+			{
+				if( ( e->inventory[i]->type == item[id].type ) &&
+					( item[id].flags & ITEMFLAG_STACKABLE ) )
+				{
+					e->inventory[i]->quantity += item[id].quantity;
+					/* TODO nicer way of disposing of item duplicates? */
+					item[id].location = loc_void;
+					
+					found = 1;
+				}
+			}
+
+			if( !found )
+			{
+				e->inventory[e->inventory_item_count] = &item[id];
+				item[id].location = loc_inventory;
+				e->inventory_item_count++;
+			}
+			
+			char *msg = malloc( MAX_MESSAGE_SIZE * sizeof(char) );
+			snprintf( msg, 80, "%s picks up the %s.", e->name, item[id].name );
+			push_message( msg, message_normal, 1, turn_count );
+
+			return 1;
+		}
+	}
+}
+
 int follow_stairs( entity_t *e )
 {
 	int i;
@@ -247,6 +295,12 @@ int player_act( entity_t *e, int c )
 		push_message( "What direction?", message_normal, 0, turn_count );
 		input_direction( &tx, &ty );
 		close_door( e, e->x+tx, e->y+ty );
+		break;
+	case ',':
+		pick_up_item( e );
+		break;
+	case 'i':
+		inventory_screen();
 		break;
 	case 'z':
 		for( i = 0; i < e->map->width; i++ )
