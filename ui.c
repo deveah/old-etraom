@@ -14,6 +14,14 @@ char* etraom_logo[] = {
 	"             http://github.com/deveah/etraom "
 };
 
+char *inventory_mode_text[] = {
+	"View",
+	"Drop",
+	"Use",
+	"Equip",
+	"Consume"
+};
+
 void init_screen( void )
 {
 	int i;
@@ -150,25 +158,43 @@ void draw_screen( void )
 	}
 }
 
-void inventory_screen( void )
+void inventory_screen( int mode )
 {
 	int i;
-
-	mvprintw( 1, 0, " Inventory: (%i items)", entity[0].inventory_item_count );
+	int count = 0;
+	item_t *item;
+	int k;
 
 	for( i = 0; i < entity[0].inventory_item_count; i++ )
 	{
-		if( entity[0].inventory[i]->flags & ITEMFLAG_STACKABLE )
-			mvprintw( 2+i, 0, " [%c] %s (%i)",
-				entity[0].inventory[i]->face,
-				entity[0].inventory[i]->name,
-				entity[0].inventory[i]->quantity );
-		else
-			mvprintw( 2+i, 0, " [%c] %s",
-				entity[0].inventory[i]->face,
-				entity[0].inventory[i]->name );
+		item = entity[0].inventory[i];
+
+		mvprintw( 2+i, 0, " %c -   %s", 'a'+i, item->name );
+		attron( COLOR_PAIR( COLOR_RED ) );
+		mvaddch( 2+i, 5, item->face );
+
+		attron( COLOR_PAIR( COLOR_WHITE ) );
+		if( item->flags & ITEMFLAG_STACKABLE )
+			mvprintw( 2+i, 8+strlen( item->name ), "(%i)", item->quantity );
+
+		count += entity[0].inventory[i]->quantity;
+	}	
+
+	mvprintw( 1, 1, "Inventory (%i item%s) - %s", count,
+		count != 1 ? "s" : "", inventory_mode_text[mode] );
+	
+	k = getch();
+
+	switch( mode )
+	{
+	case mode_view:
+		return;
+	case mode_drop:
+		drop_item( &entity[0], k-'a' );
+		break;
+	default:
+		break;
 	}
-	getch();
 }
 
 void title_screen( void )

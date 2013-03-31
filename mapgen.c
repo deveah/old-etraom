@@ -347,7 +347,6 @@ void place_items( map_t *m, int nitems )
 		item[item_count].map = m;
 		item[item_count].flags = ITEMFLAG_STACKABLE;
 		item[item_count].quantity = 1;
-		item[item_count].max_stack_size = 3;
 		item_count++;
 	}
 }

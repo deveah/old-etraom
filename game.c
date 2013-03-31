@@ -194,9 +194,14 @@ int pick_up_item( entity_t *e )
 	int i;
 	int found = 0;
 
+	/* TODO: pick up - how many? */
+
 	if( is_legal( e->map, e->x, e->y ) )
 	{
 		id = find_item_by_location( e->map, e->x, e->y );
+		if( item[id].location != loc_floor )
+			id = -1;
+
 		if( id == -1 )
 		{
 			push_message( "There's no item to pick up.", message_normal, 0,
@@ -232,6 +237,39 @@ int pick_up_item( entity_t *e )
 			return 1;
 		}
 	}
+}
+
+int drop_item( entity_t *e, int id )
+{
+	int count;
+
+	if( e->inventory_item_count < id )
+	{
+		push_message( "There's no such item.", message_normal, 0, turn_count );
+		return 0;
+	}
+
+	if( e->inventory[id]->flags & ITEMFLAG_STACKABLE )
+	{
+		mvprintw( 0, 0, "How many to drop?" );
+		mvscanw( 0, 18, "%i", &count );
+		
+		if( count > e->inventory[id]->quantity )
+			mvprintw( 0, 0, "That's way too many." );
+		else if( count < e->inventory[id]->quantity )
+		{
+			e->inventory[id]->quantity -= count;
+			item[item_count] = *(e->inventory[id]);
+			item[item_count].quantity = count;
+			item[item_count].location = loc_floor;
+			item[item_count].map = e->map;
+			item[item_count].x = e->x;
+			item[item_count].y = e->y;
+			item_count++;
+		}
+	}
+
+	return 1;
 }
 
 int follow_stairs( entity_t *e )
@@ -300,7 +338,10 @@ int player_act( entity_t *e, int c )
 		pick_up_item( e );
 		break;
 	case 'i':
-		inventory_screen();
+		inventory_screen( mode_view );
+		break;
+	case 'd':
+		inventory_screen( mode_drop );
 		break;
 	case 'z':
 		for( i = 0; i < e->map->width; i++ )

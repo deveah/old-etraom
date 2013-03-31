@@ -7,6 +7,9 @@
 /*
  *	TODO
  *
+ *	XXX: item and entity data structures - revisit!
+ *		 how to handle picking up and dropping?
+ *		 current scheme can occupy all the array
  *	other entities
  *	ai
  *	attack formulae?
@@ -67,6 +70,11 @@ enum item_location
 	loc_void, loc_floor, loc_inventory
 };
 
+enum inventory_mode
+{
+	mode_view, mode_drop, mode_use, mode_equip, mode_consume
+};
+
 /* general game-related structs */
 
 typedef struct
@@ -87,6 +95,8 @@ typedef struct
 	int type;
 	int flags;
 	int quantity, quality;
+
+	void *specific;
 
 	int location;
 	int x, y;
@@ -183,7 +193,7 @@ void init_screen( void );
 void terminate_screen( void );
 void set_color( int f, int attr );
 void draw_screen( void );
-void inventory_screen( void );
+void inventory_screen( int mode );
 void title_screen( void );
 void input_direction( int *x, int *y );
 
@@ -193,6 +203,7 @@ void terminate_game( void );
 int open_door( entity_t *e, int x, int y );
 int close_door( entity_t *e, int x, int y );
 int pick_up_item( entity_t *e );
+int drop_item( entity_t *e, int id );
 int follow_stairs( entity_t *e );
 int player_act( entity_t *e, int c );
 void game_loop( void );
